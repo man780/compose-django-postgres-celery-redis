@@ -1,0 +1,42 @@
+[
+    {
+      "model": "core.account",
+      "pk": "26c940a1-7228-4ea2-a3bc-e6460b172040",
+      "fields": {
+        "fio": "Петров Иван Сергеевич",
+        "balance": 1700,
+        "hold": 300,
+        "status": 1
+      }
+    },
+    {
+      "model": "core.account",
+      "pk": "7badc8f8-65bc-449a-8cde-855234ac63e1",
+      "fields": {
+        "fio": "Kazitsky Jason",
+        "balance": 200,
+        "hold": 200,
+        "status": 1
+      }
+    },
+    {
+      "model": "core.account",
+      "pk": "5597cc3d-c948-48a0-b711-393edf20d9c0",
+      "fields": {
+        "fio": "Пархоменко Антон Александрович",
+        "balance": 10,
+        "hold": 300,
+        "status": 1
+      }
+    },
+    {
+      "model": "core.account",
+      "pk": "867f0924-a917-4711-939b-90b179a96392",
+      "fields": {
+        "fio": "Петечкин Петр Измаилович",
+        "balance": 1000000,
+        "hold": 1,
+        "status": 0
+      }
+    }
+  ]
