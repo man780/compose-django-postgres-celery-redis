@@ -4,14 +4,9 @@ from .serializers import AccountSerializer, ActionSerializer
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
 from django.http import Http404
-from rest_framework import permissions
-from .tasks import clear_hold
-
-
-def task():
-    clear_hold.delay()
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 
 class AccountViewSet(viewsets.ModelViewSet):
@@ -20,6 +15,11 @@ class AccountViewSet(viewsets.ModelViewSet):
     """
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
+
+    @action(detail=True)
+    def status(self, request, *args, **kwargs):
+        account = self.get_object()
+        return Response({'balance': account.balance, 'status': account.status})
 
 
 class ChangeBalance(APIView):
@@ -40,3 +40,4 @@ class ChangeBalance(APIView):
                 return Response(False, status=ValueError)
         except Account.DoesNotExist:
             raise Http404
+
