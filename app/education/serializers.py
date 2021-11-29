@@ -11,12 +11,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
-        # url: {'view_name': 'api:user-detail'}
-
-        # Added this line:
-        # groups: {'view_name': 'education:group-detail'}
         model = Student
-        # lookup_field = 'id'
         fields = ['id', 'group', 'name']
 
 
