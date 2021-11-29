@@ -48,7 +48,7 @@ class Mark(models.Model):
     ball = models.PositiveIntegerField()
 
     def __str__(self):
-        return self.student.name+' '+self.ball
+        return self.student.name+' '+self.subject.name
 
     class Meta:
         verbose_name = 'Mark'
