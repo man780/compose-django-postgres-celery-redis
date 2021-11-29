@@ -48,3 +48,37 @@ class MarkViewSet(viewsets.ModelViewSet):
     """
     queryset = Mark.objects.all()
     serializer_class = MarkSerializer
+
+
+class ReportByStudent(APIView):
+
+    def get(self, request):
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT " 
+                "st.name AS student_name, "
+                "gp.name AS group_name, "
+                "sb.name AS subject_name, " 
+                "avg_mark_table.avg_mark AS average_mark "
+                "from "
+                "( "
+                    "SELECT "
+                        "student_id, "
+                        "subject_id, "
+                        "AVG(ball) AS avg_mark "
+                    "FROM education_mark " 
+                    "GROUP BY student_id, subject_id " 
+                    "ORDER BY subject_id, student_id "
+                ") avg_mark_table "
+                "LEFT JOIN education_student st ON st.id = avg_mark_table.student_id "
+                "LEFT JOIN education_subject sb ON sb.id = avg_mark_table.subject_id "
+                "LEFT JOIN education_group gp ON gp.id = st.group_id "
+            )
+            rows = cursor.fetchall()
+        reportTable = {}
+        i = 0
+        for mark in rows:
+            reportTable[i] = mark
+            i = i + 1
+        return Response({'marks': reportTable}, 200)
