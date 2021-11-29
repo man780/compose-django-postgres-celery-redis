@@ -15,6 +15,7 @@ services:
              python3 manage.py makemigrations &&
              python3 manage.py migrate &&
              python3 manage.py loaddata data.json &&
+             python3 manage.py loaddata education.json &&
              python3 manage.py runserver 0.0.0.0:8000"
     env_file:
       - ./.env.dev
