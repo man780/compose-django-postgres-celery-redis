@@ -73,7 +73,7 @@ class ReportByStudent(APIView):
                 ") avg_mark_table "
                 "LEFT JOIN education_student st ON st.id = avg_mark_table.student_id "
                 "LEFT JOIN education_subject sb ON sb.id = avg_mark_table.subject_id "
-                "LEFT JOIN education_group gp ON gp.id = st.group_id "
+                "LEFT JOIN education_group gp ON gp.id = st.group_id ORDER BY st.name"
             )
             rows = cursor.fetchall()
         reportTable = {}
@@ -82,3 +82,46 @@ class ReportByStudent(APIView):
             reportTable[i] = mark
             i = i + 1
         return Response({'marks': reportTable}, 200)
+
+
+class ReportByGroup(APIView):
+
+    def get(self, request):
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT "
+                  "group_name, "
+                  "subject_name, "
+                  "AVG(avg_mark_group_table.average_mark) "
+                "FROM ( "
+                  "SELECT  "
+                  "st.group_id, "
+                  "gp.name AS group_name, "
+                  "sb.id AS subject_id, "
+                  "sb.name AS subject_name, "
+                  "avg_mark_table.avg_mark AS average_mark "
+                  "FROM "
+                  "(  "
+                    "SELECT "
+                      "student_id, "
+                      "subject_id, "
+                      "AVG(ball) AS avg_mark "
+                    "FROM education_mark "
+                    "GROUP BY student_id, subject_id "
+                    "ORDER BY subject_id, student_id "
+                  ") avg_mark_table "
+                  "LEFT JOIN education_student st ON st.id = avg_mark_table.student_id "
+                  "LEFT JOIN education_subject sb ON sb.id = avg_mark_table.subject_id "
+                  "LEFT JOIN education_group gp ON gp.id = st.group_id "
+                ") AS avg_mark_group_table "
+                "GROUP BY group_name, subject_name "
+                "ORDER BY group_name, subject_name"
+            )
+            rows = cursor.fetchall()
+        reportTable = {}
+        i = 0
+        for mark in rows:
+            reportTable[i] = mark
+            i = i + 1
+        return Response({'Report': reportTable}, 200)
