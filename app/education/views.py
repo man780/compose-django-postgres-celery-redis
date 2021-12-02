@@ -2,20 +2,24 @@ from .models import (
     Group,
     Student,
     Subject,
-    Mark
+    Mark,
+    ReportByGroup,
+    ReportByStudent
 )
 from .serializers import (
     GroupSerializer,
     StudentSerializer,
     SubjectSerializer,
-    MarkSerializer
+    MarkSerializer,
+    ReportByGroupSerializer,
+    ReportByStudentSerializer
 )
 from rest_framework import viewsets
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.renderers import JSONRenderer
 
-from django.http import Http404
+import json
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -50,78 +54,73 @@ class MarkViewSet(viewsets.ModelViewSet):
     serializer_class = MarkSerializer
 
 
-class ReportByStudent(APIView):
+class ReportByStudentView(APIView):
 
     def get(self, request):
-        from django.db import connection
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT " 
-                "st.name AS student_name, "
-                "gp.name AS group_name, "
-                "sb.name AS subject_name, " 
-                "avg_mark_table.avg_mark AS average_mark "
-                "from "
+        rows = ReportByStudent.objects.raw(
+            "SELECT "
+                "1 as id, "
+                "st.name AS fio, "
+                "gp.name AS group, "
+                "sb.name AS subject, "
+                "avg_mark_table.avg_mark AS ball "
+            "from "
                 "( "
-                    "SELECT "
-                        "student_id, "
-                        "subject_id, "
-                        "AVG(ball) AS avg_mark "
-                    "FROM education_mark " 
-                    "GROUP BY student_id, subject_id " 
-                    "ORDER BY subject_id, student_id "
+                "SELECT "
+                "student_id, "
+                "subject_id, "
+                "AVG(ball) AS avg_mark "
+                "FROM education_mark "
+                "GROUP BY student_id, subject_id "
+                "ORDER BY subject_id, student_id "
                 ") avg_mark_table "
-                "LEFT JOIN education_student st ON st.id = avg_mark_table.student_id "
-                "LEFT JOIN education_subject sb ON sb.id = avg_mark_table.subject_id "
-                "LEFT JOIN education_group gp ON gp.id = st.group_id ORDER BY st.name"
-            )
-            rows = cursor.fetchall()
-        reportTable = {}
-        i = 0
-        for mark in rows:
-            reportTable[i] = mark
-            i = i + 1
-        return Response({'marks': reportTable}, 200)
+            "LEFT JOIN education_student st ON st.id = avg_mark_table.student_id "
+            "LEFT JOIN education_subject sb ON sb.id = avg_mark_table.subject_id "
+            "LEFT JOIN education_group gp ON gp.id = st.group_id ORDER BY st.name"
+        )
+        sRows = ReportByStudentSerializer(rows, many=True)
+        stRows = JSONRenderer().render(sRows.data)
+        data = json.loads(stRows)
+
+        return Response(data, 200)
 
 
-class ReportByGroup(APIView):
+class ReportByGroupView(APIView):
 
     def get(self, request):
-        from django.db import connection
-        with connection.cursor() as cursor:
-            cursor.execute(
+        rows = ReportByGroup.objects.raw(
+            "SELECT "
+              "1 as id, "
+              "group_name, "
+              "subject_name, "
+              "AVG(avg_mark_group_table.average_mark) as ball "
+            "FROM ( "
+              "SELECT  "
+              "st.group_id, "
+              "gp.name AS group_name, "
+              "sb.id AS subject_id, "
+              "sb.name AS subject_name, "
+              "avg_mark_table.avg_mark AS average_mark "
+              "FROM "
+              "(  "
                 "SELECT "
-                  "group_name, "
-                  "subject_name, "
-                  "AVG(avg_mark_group_table.average_mark) "
-                "FROM ( "
-                  "SELECT  "
-                  "st.group_id, "
-                  "gp.name AS group_name, "
-                  "sb.id AS subject_id, "
-                  "sb.name AS subject_name, "
-                  "avg_mark_table.avg_mark AS average_mark "
-                  "FROM "
-                  "(  "
-                    "SELECT "
-                      "student_id, "
-                      "subject_id, "
-                      "AVG(ball) AS avg_mark "
-                    "FROM education_mark "
-                    "GROUP BY student_id, subject_id "
-                    "ORDER BY subject_id, student_id "
-                  ") avg_mark_table "
-                  "LEFT JOIN education_student st ON st.id = avg_mark_table.student_id "
-                  "LEFT JOIN education_subject sb ON sb.id = avg_mark_table.subject_id "
-                  "LEFT JOIN education_group gp ON gp.id = st.group_id "
-                ") AS avg_mark_group_table "
-                "GROUP BY group_name, subject_name "
-                "ORDER BY group_name, subject_name"
-            )
-            rows = cursor.fetchall()
-        reportTable = {}
-        i = 0
-        for mark in rows:
-            reportTable[i] = mark
-            i = i + 1
-        return Response({'Report': reportTable}, 200)
+                  "student_id, "
+                  "subject_id, "
+                  "AVG(ball) AS avg_mark "
+                "FROM education_mark "
+                "GROUP BY student_id, subject_id "
+                "ORDER BY subject_id, student_id "
+              ") avg_mark_table "
+              "LEFT JOIN education_student st ON st.id = avg_mark_table.student_id "
+              "LEFT JOIN education_subject sb ON sb.id = avg_mark_table.subject_id "
+              "LEFT JOIN education_group gp ON gp.id = st.group_id "
+            ") AS avg_mark_group_table "
+            "GROUP BY group_name, subject_name "
+            "ORDER BY group_name, subject_name"
+        )
+        print(rows)
+        sRows = ReportByGroupSerializer(rows, many=True)
+        stRows = JSONRenderer().render(sRows.data)
+        data = json.loads(stRows)
+
+        return Response(data, 200)
