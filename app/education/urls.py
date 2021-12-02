@@ -1,6 +1,6 @@
 from django.urls import path, include
 
-from .views import GroupViewSet, StudentViewSet, SubjectViewSet, MarkViewSet, ReportByStudent, ReportByGroup
+from .views import GroupViewSet, StudentViewSet, SubjectViewSet, MarkViewSet, ReportByStudentView, ReportByGroupView
 from rest_framework import routers
 
 
@@ -15,6 +15,6 @@ router.register(r'mark', MarkViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('report-by-student/', ReportByStudent.as_view()),
-    path('report-by-group/', ReportByGroup.as_view())
+    path('report-by-student/', ReportByStudentView.as_view()),
+    path('report-by-group/', ReportByGroupView.as_view())
 ]
