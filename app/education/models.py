@@ -55,3 +55,28 @@ class Mark(models.Model):
 
     def get_absolute_url(self):
         return reverse('mark', args=[self.name, str(self.id)])
+
+
+class ReportByStudent(models.Model):
+    fio = models.CharField(max_length=100)
+    group = models.CharField(max_length=100)
+    subject = models.CharField(max_length=100)
+    ball = models.FloatField()
+
+    class Meta:
+        verbose_name = "Report By Student"
+        permissions = [
+            ('allow_report', 'Can see Reports')
+        ]
+
+
+class ReportByGroup(models.Model):
+    group_name = models.CharField(max_length=100)
+    subject_name = models.CharField(max_length=100)
+    ball = models.FloatField()
+
+    class Meta:
+        verbose_name = "Report By Group"
+        permissions = [
+            ('allow_report', 'Can see Reports')
+        ]
