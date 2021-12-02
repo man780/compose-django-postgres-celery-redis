@@ -15,11 +15,14 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     # Calls every 10 sec.
-    sender.add_periodic_task(10.0, clear_holds, name='every 10')
+    sender.add_periodic_task(1000.0, clear_holds, name='every 10')
     # sender.add_periodic_task(1.0, add_subject.s(), name='add every 10')
     # sender.add_periodic_task(5.0, add_group.s(), name='add every 10')
-    # sender.add_periodic_task(100.0, add_student.s())
-    sender.add_periodic_task(1.0, add_mark.s(), name='add mark every 1')
+    # sender.add_periodic_task(1000.0, add_student.s())
+
+    # You can put 1 instead of 100
+    # This will randomly add one "ball" per second.
+    sender.add_periodic_task(100.0, add_mark.s(), name='add mark every 1')
 
 
 logger = get_task_logger(__name__)
