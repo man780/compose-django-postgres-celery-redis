@@ -15,3 +15,6 @@ _25 row_ in file
 
 ```cd app/app/celery.py``` 
 
+
+##### RUN
+[http://0.0.0.0:80](http://0.0.0.0:80)
