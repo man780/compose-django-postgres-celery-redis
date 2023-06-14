@@ -138,3 +138,4 @@ dmypy.json
 cython_debug/
 */migrations
 .DS_Store
+app/education/migrations/0001_initial.py
