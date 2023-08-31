@@ -1,9 +1,7 @@
-from django.shortcuts import render
 from .models import Account
 from .serializers import AccountSerializer, ActionSerializer
 from rest_framework import viewsets
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from django.http import Http404
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -31,13 +29,12 @@ class ChangeBalance(APIView):
             if data.is_valid():
                 account = Account.objects.get(pk=data.data['uuid'])
                 if data.data['action'] == 'plus':
-                    account.add_balance(value=data.data['value'])
+                    account.increase_balance(value=data.data['value'])
                     return Response('Balance added', 201)
                 else:
-                    account.dedicate_balance(value=data.data['value'])
+                    account.decrease_balance(value=data.data['value'])
                     return Response('Balance Substract', 202)
             else:
                 return Response(False, status=ValueError)
         except Account.DoesNotExist:
             raise Http404
-

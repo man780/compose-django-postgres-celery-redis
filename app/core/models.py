@@ -19,12 +19,12 @@ class Account(models.Model):
     def get_absolute_url(self):
         return reverse('account', args=[str(self.uuid)])
 
-    def add_balance(self, value):
+    def increase_balance(self, value):
         self.balance = self.balance + value
         self.save()
         return True
 
-    def dedicate_balance(self, value):
+    def decrease_balance(self, value):
         result = self.balance - self.hold - value
         if result<0:
             return False
